@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HapticPressable } from "@/components/HapticPressable";
 import { StyledText } from "@/components/StyledText";
+import { SwipeBackContainer } from "@/components/SwipeBackContainer";
 import { useInvertColors } from "@/contexts/InvertColorsContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { n } from "@/utils/scaling";
@@ -20,9 +21,7 @@ export default function ConfirmScreen() {
   const iconColor = invertColors ? "black" : "white";
 
   const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    }
+    if (router.canGoBack()) router.back();
   };
 
   const handleConfirm = () => {
@@ -33,34 +32,32 @@ export default function ConfirmScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-      {/* Back arrow only — no title, matching LightOS confirm style */}
-      <View style={styles.header}>
-        <HapticPressable onPress={handleBack}>
-          <View style={styles.backButton}>
-            <MaterialIcons
-              color={iconColor}
-              name="arrow-back-ios"
-              size={n(28)}
-            />
-          </View>
-        </HapticPressable>
-      </View>
+    <SwipeBackContainer onSwipeBack={handleBack}>
+      <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
+        {/* Back arrow only — no title */}
+        <View style={styles.header}>
+          <HapticPressable onPress={handleBack}>
+            <View style={styles.backButton}>
+              <MaterialIcons color={iconColor} name="arrow-back-ios" size={n(28)} />
+            </View>
+          </HapticPressable>
+        </View>
 
-      {/* Centered message */}
-      <View style={styles.body}>
-        <StyledText style={styles.message}>{message}</StyledText>
-      </View>
+        {/* Centered message */}
+        <View style={styles.body}>
+          <StyledText style={styles.message}>{message}</StyledText>
+        </View>
 
-      {/* CONFIRM at bottom */}
-      <View style={styles.footer}>
-        <HapticPressable onPress={handleConfirm}>
-          <StyledText style={styles.confirmBtn}>
-            {confirmText ?? "CONFIRM"}
-          </StyledText>
-        </HapticPressable>
-      </View>
-    </SafeAreaView>
+        {/* CONFIRM/RESET pushed toward bottom */}
+        <View style={styles.footer}>
+          <HapticPressable onPress={handleConfirm}>
+            <StyledText style={styles.confirmBtn}>
+              {confirmText ?? "CONFIRM"}
+            </StyledText>
+          </HapticPressable>
+        </View>
+      </SafeAreaView>
+    </SwipeBackContainer>
   );
 }
 
@@ -90,10 +87,10 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: "center",
-    paddingBottom: n(48),
+    paddingBottom: n(80),
   },
   confirmBtn: {
-    fontSize: n(20),
+    fontSize: n(26),
     letterSpacing: n(4),
   },
 });
