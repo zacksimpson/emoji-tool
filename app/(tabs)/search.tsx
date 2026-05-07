@@ -12,6 +12,7 @@ import { StyledText } from "@/components/StyledText";
 import { TextInput } from "@/components/TextInput";
 import { useInvertColors } from "@/contexts/InvertColorsContext";
 import { useSelected } from "@/contexts/SelectedContext";
+import { useTopUsed } from "@/contexts/TopUsedContext";
 import { n } from "@/utils/scaling";
 import { searchEmoji, type EmojiEntry } from "@/utils/emojiData";
 
@@ -21,6 +22,7 @@ export default function SearchScreen() {
   const { invertColors } = useInvertColors();
   const { width } = useWindowDimensions();
   const { addEmoji } = useSelected();
+  const { trackEmoji } = useTopUsed();
   const [query, setQuery] = useState("");
 
   const bg = invertColors ? "white" : "black";
@@ -32,7 +34,10 @@ export default function SearchScreen() {
   const renderItem = useCallback(
     ({ item }: { item: EmojiEntry }) => (
       <HapticPressable
-        onPress={() => addEmoji(item.emoji)}
+        onPress={() => {
+          addEmoji(item.emoji);
+          trackEmoji(item.emoji);
+        }}
         style={{
           width: cellSize,
           height: cellSize,
@@ -45,15 +50,12 @@ export default function SearchScreen() {
         </StyledText>
       </HapticPressable>
     ),
-    [cellSize, addEmoji]
+    [cellSize, addEmoji, trackEmoji]
   );
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-      {/* Header */}
       <Header headerTitle="Search" hideBackButton />
-
-      {/* Search input */}
       <View style={[styles.inputWrapper, { borderBottomColor: dividerColor }]}>
         <TextInput
           autoFocus={false}
@@ -62,8 +64,6 @@ export default function SearchScreen() {
           value={query}
         />
       </View>
-
-      {/* Results */}
       {query.trim().length > 0 && results.length === 0 ? (
         <View style={styles.empty}>
           <StyledText style={styles.emptyText}>No results</StyledText>
@@ -91,20 +91,13 @@ const styles = StyleSheet.create({
     paddingVertical: n(12),
     borderBottomWidth: 1,
   },
-  grid: {
-    paddingTop: n(8),
-  },
-  emojiText: {
-    textAlign: "center",
-  },
+  grid: { paddingTop: n(8) },
+  emojiText: { textAlign: "center" },
   empty: {
     flex: 1,
     alignItems: "flex-start",
     paddingHorizontal: n(22),
     paddingTop: n(32),
   },
-  emptyText: {
-    fontSize: n(20),
-    opacity: 0.4,
-  },
+  emptyText: { fontSize: n(20), opacity: 0.4 },
 });
