@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { InvertColorsProvider } from "@/contexts/InvertColorsContext";
 import { SelectedProvider } from "@/contexts/SelectedContext";
+import { TopUsedProvider } from "@/contexts/TopUsedContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,9 +24,13 @@ export default function RootLayout() {
   return (
     <InvertColorsProvider>
       <SelectedProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-        </Stack>
+        <TopUsedProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="confirm" />
+            <Stack.Screen name="settings/sort-frequents" />
+          </Stack>
+        </TopUsedProvider>
       </SelectedProvider>
     </InvertColorsProvider>
   );
