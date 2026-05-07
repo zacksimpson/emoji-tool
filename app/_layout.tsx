@@ -14,9 +14,7 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
+    if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
   if (!loaded) return null;
@@ -25,7 +23,7 @@ export default function RootLayout() {
     <InvertColorsProvider>
       <SelectedProvider>
         <TopUsedProvider>
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack screenOptions={{ headerShown: false, animation: "none" }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="confirm" />
             <Stack.Screen name="settings/sort-frequents" />
