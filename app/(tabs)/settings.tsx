@@ -16,9 +16,7 @@ export default function SettingsScreen() {
   const params = useLocalSearchParams<{ confirmed?: string; action?: string }>();
 
   const bg = invertColors ? "white" : "black";
-  const dividerColor = invertColors ? "#DDDDDD" : "#1A1A1A";
 
-  // Handle confirmation return
   useEffect(() => {
     if (params.confirmed === "true" && params.action === "resetTopUsed") {
       resetTopUsed();
@@ -43,8 +41,8 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
       <Header headerTitle="Settings" hideBackButton />
-      <View style={styles.content}>
 
+      <View style={styles.content}>
         {/* Invert Colors toggle */}
         <ToggleSwitch
           label="Invert colors"
@@ -52,8 +50,7 @@ export default function SettingsScreen() {
           onValueChange={setInvertColors}
         />
 
-        {/* Sort Frequents selector */}
-        <View style={[styles.divider, { backgroundColor: dividerColor }]} />
+        {/* Sort Frequents selector — SelectorButton pattern, no dividers */}
         <HapticPressable
           onPress={() => router.push("/settings/sort-frequents")}
           style={styles.selectorRow}
@@ -63,11 +60,9 @@ export default function SettingsScreen() {
         </HapticPressable>
 
         {/* Reset Top Used */}
-        <View style={[styles.divider, { backgroundColor: dividerColor }]} />
         <HapticPressable onPress={handleResetTopUsed} style={styles.resetRow}>
           <StyledText style={styles.resetText}>Reset Top Used</StyledText>
         </HapticPressable>
-
       </View>
     </SafeAreaView>
   );
@@ -78,12 +73,10 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: n(22),
     paddingTop: n(16),
-  },
-  divider: {
-    height: 1,
-    marginVertical: n(16),
+    gap: n(4),
   },
   selectorRow: {
+    paddingTop: n(20),
     flexDirection: "column",
   },
   selectorLabel: {
@@ -96,7 +89,7 @@ const styles = StyleSheet.create({
     paddingBottom: n(10),
   },
   resetRow: {
-    paddingVertical: n(10),
+    paddingTop: n(20),
   },
   resetText: {
     fontSize: n(30),
