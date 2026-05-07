@@ -4,6 +4,7 @@ import { Navbar, type TabConfigItem } from "@/components/Navbar";
 
 export const TABS_CONFIG: ReadonlyArray<TabConfigItem> = [
   { name: "Home", screenName: "index", iconName: "home" },
+  { name: "Top Used", screenName: "topused", iconName: "schedule" },
   { name: "Search", screenName: "search", iconName: "search" },
   { name: "Settings", screenName: "settings", iconName: "settings" },
 ] as const;
@@ -26,6 +27,7 @@ export default function TabsLayout() {
       tabBar={(props) => <TabBar {...props} />}
     >
       <Tabs.Screen name="index" />
+      <Tabs.Screen name="topused" />
       <Tabs.Screen name="search" />
       <Tabs.Screen name="settings" />
     </Tabs>
