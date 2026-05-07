@@ -12,6 +12,7 @@ import { HapticPressable } from "@/components/HapticPressable";
 import { StyledText } from "@/components/StyledText";
 import { useInvertColors } from "@/contexts/InvertColorsContext";
 import { useSelected } from "@/contexts/SelectedContext";
+import { useTopUsed } from "@/contexts/TopUsedContext";
 import { n } from "@/utils/scaling";
 
 const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
@@ -185,6 +186,7 @@ export default function HomeScreen() {
   const { invertColors } = useInvertColors();
   const { width } = useWindowDimensions();
   const { selected, addEmoji, clearEmoji } = useSelected();
+  const { trackEmoji } = useTopUsed();
   const [copied, setCopied] = useState(false);
 
   const cellSize = width / COLS;
@@ -213,7 +215,10 @@ export default function HomeScreen() {
           {item.items.map((emoji, idx) => (
             <HapticPressable
               key={`${emoji}-${idx}`}
-              onPress={() => addEmoji(emoji)}
+              onPress={() => {
+                addEmoji(emoji);
+                trackEmoji(emoji);
+              }}
               style={{ width: cellSize, height: cellSize, justifyContent: "center", alignItems: "center" }}
             >
               <StyledText style={[styles.emojiText, { fontSize: n(22) }]}>
@@ -224,12 +229,11 @@ export default function HomeScreen() {
         </View>
       );
     },
-    [cellSize, dividerColor, addEmoji]
+    [cellSize, dividerColor, addEmoji, trackEmoji]
   );
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-      {/* Header — COPY left, CLEAR right */}
       <View style={[styles.header, { borderBottomColor: dividerColor }]}>
         <HapticPressable onPress={handleCopy}>
           <StyledText style={[styles.headerBtn, copied && styles.headerBtnDone]}>
@@ -241,7 +245,6 @@ export default function HomeScreen() {
         </HapticPressable>
       </View>
 
-      {/* Selection tray */}
       {selected.length > 0 && (
         <View style={[styles.tray, { borderBottomColor: dividerColor }]}>
           <StyledText style={styles.trayText} numberOfLines={1} ellipsizeMode="tail">
@@ -250,7 +253,6 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* Emoji grid */}
       <FlatList
         data={ROWS}
         keyExtractor={(_, i) => String(i)}
@@ -276,34 +278,21 @@ const styles = StyleSheet.create({
     paddingVertical: n(14),
     borderBottomWidth: 1,
   },
-  headerBtn: {
-    fontSize: n(20),
-    letterSpacing: n(1),
-  },
-  headerBtnDone: {
-    opacity: 0.35,
-  },
+  headerBtn: { fontSize: n(20), letterSpacing: n(1) },
+  headerBtnDone: { opacity: 0.35 },
   tray: {
     paddingHorizontal: n(22),
     paddingVertical: n(14),
     borderBottomWidth: 1,
   },
-  trayText: {
-    fontSize: n(28),
-  },
+  trayText: { fontSize: n(28) },
   sectionHeader: {
     paddingHorizontal: n(22),
     paddingTop: n(28),
     paddingBottom: n(10),
     borderBottomWidth: 1,
   },
-  sectionHeaderText: {
-    fontSize: n(17),
-  },
-  emojiRow: {
-    flexDirection: "row",
-  },
-  emojiText: {
-    textAlign: "center",
-  },
+  sectionHeaderText: { fontSize: n(17) },
+  emojiRow: { flexDirection: "row" },
+  emojiText: { textAlign: "center" },
 });
