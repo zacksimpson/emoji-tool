@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "@/components/Header";
 import { HapticPressable } from "@/components/HapticPressable";
 import { StyledText } from "@/components/StyledText";
+import { SwipeBackContainer } from "@/components/SwipeBackContainer";
 import { useInvertColors } from "@/contexts/InvertColorsContext";
 import { useTopUsed, type SortMode } from "@/contexts/TopUsedContext";
 import { n } from "@/utils/scaling";
@@ -18,33 +19,39 @@ export default function SortFrequentsScreen() {
   const { sortMode, setSortMode } = useTopUsed();
   const bg = invertColors ? "white" : "black";
 
+  const handleBack = () => {
+    if (router.canGoBack()) router.back();
+  };
+
   const handleSelect = async (value: SortMode) => {
     await setSortMode(value);
     router.back();
   };
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-      <Header headerTitle="Sort Frequents" />
-      <View style={styles.content}>
-        {OPTIONS.map((option) => (
-          <HapticPressable
-            key={option.value}
-            onPress={() => handleSelect(option.value)}
-            style={styles.option}
-          >
-            <StyledText
-              style={[
-                styles.optionText,
-                sortMode === option.value && styles.selected,
-              ]}
+    <SwipeBackContainer onSwipeBack={handleBack}>
+      <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
+        <Header headerTitle="Sort Frequents" />
+        <View style={styles.content}>
+          {OPTIONS.map((option) => (
+            <HapticPressable
+              key={option.value}
+              onPress={() => handleSelect(option.value)}
+              style={styles.option}
             >
-              {option.label}
-            </StyledText>
-          </HapticPressable>
-        ))}
-      </View>
-    </SafeAreaView>
+              <StyledText
+                style={[
+                  styles.optionText,
+                  sortMode === option.value && styles.selected,
+                ]}
+              >
+                {option.label}
+              </StyledText>
+            </HapticPressable>
+          ))}
+        </View>
+      </SafeAreaView>
+    </SwipeBackContainer>
   );
 }
 
@@ -53,7 +60,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: n(22),
     paddingTop: n(16),
-    gap: n(8),
   },
   option: {
     paddingVertical: n(10),
