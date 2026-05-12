@@ -4,7 +4,7 @@ A simple emoji picker for the Light Phone III.
 
 Browse all Android 14 emoji organized by category. Tap to add emoji to your selection, tap COPY to copy them to your clipboard, and CLEAR to start over.
 
-![Emojis screenshots](assets/images/screenshots.png)
+![Emojis screenshots](assets/images/example.png)
 ---
 
 ## Features
