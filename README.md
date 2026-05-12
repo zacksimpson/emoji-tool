@@ -4,19 +4,27 @@ A simple emoji picker for the Light Phone III.
 
 Browse all Android 14 emoji organized by category. Tap to add emoji to your selection, tap COPY to copy them to your clipboard, and CLEAR to start over.
 
-Built with [vandamd's light-template](https://github.com/vandamd/light-template) — a community-made Expo template for building LightOS-style apps for the Light Phone III.
-
+![Emojis screenshots](assets/images/screenshots.png)
 ---
 
 ## Features
 
 - Full Android 14 emoji set organized by category
 - Tap any emoji to add it to your selection
-- Tap the same emoji multiple times to add it more than once
 - COPY copies your selection to the clipboard
 - CLEAR resets your selection
+- Search any emoji by name or keyword
+- Frequently-used emoji tab – for quick access to commonly used emoji
+- Can be customized to show most recent or most used
 - Respects LightOS theme (black/white mode)
-- Haptic feedback on every tap
+
+---
+
+## Installing on Light Phone III
+
+- Highly recommend using [Obtainium](https://github.com/ImranR98/Obtainium) to ensure you receive future updates and new features automatically. Just add [the repo URL](https://github.com/zacksimpson/emoji-tool/), make sure you're able to install apps from unknown sources, and you're all set.
+- Alternatively, you can download the latest APK from the Releases tab.
+
 
 ---
 
@@ -42,15 +50,8 @@ EAS will build the APK in the cloud and provide a download link.
 
 ---
 
-## Installing on Light Phone III
-
-1. Download the APK from the latest [GitHub Release](../../releases)
-2. On your Light Phone III, enable installing from unknown sources
-3. Transfer and install the APK, or use [Obtainium](https://github.com/ImranR98/Obtainium) to manage updates automatically
-
----
-
 ## Credits
 
-- [vandamd](https://github.com/vandamd) — [light-template](https://github.com/vandamd/light-template), the community Expo template this app is built on
-- [The Light Phone](https://www.thelightphone.com) — for building a phone worth making apps for
+- [vandamd](https://github.com/vandamd) – [light-template](https://github.com/vandamd/light-template), the community Expo template this app is built on
+- [Unicode Full Emoji List, v13.1](https://unicode.org/emoji/charts-13.1/full-emoji-list.html) – for full official index of emojis, names, and keywords
+- [The Light Phone](https://www.thelightphone.com) – for building a phone worth making apps for
