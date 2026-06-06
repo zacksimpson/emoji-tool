@@ -1,58 +1,37 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { useInvertColors } from "@/contexts/InvertColorsContext";
 import { n } from "@/utils/scaling";
 import { HapticPressable } from "./HapticPressable";
 
-export interface TabConfigItem {
-  iconName: keyof typeof MaterialIcons.glyphMap;
-  name: string;
-  screenName: string;
-}
-
 interface NavbarProps {
   currentScreenName: string;
   navigation: BottomTabBarProps["navigation"];
-  tabsConfig?: readonly TabConfigItem[];
 }
 
-const getTabColor = (isActive: boolean, inverted: boolean) => {
-  if (isActive) {
-    return inverted ? "black" : "white";
-  }
-  return inverted ? "#C1C1C1" : "#6E6E6E";
-};
-
-export function Navbar({
-  tabsConfig,
-  currentScreenName,
-  navigation,
-}: NavbarProps) {
+export function Navbar({ currentScreenName, navigation }: NavbarProps) {
   const { invertColors } = useInvertColors();
+  const bg = invertColors ? "white" : "black";
+  const iconColor = invertColors ? "black" : "white";
+  const isOnRecents = currentScreenName === "recents";
 
   return (
-    <View
-      style={[
-        styles.navbar,
-        { backgroundColor: invertColors ? "white" : "black" },
-      ]}
-    >
-      {tabsConfig?.map((tab) => (
-        <HapticPressable
-          key={tab.screenName}
-          onPress={() => navigation.navigate(tab.screenName)}
-        >
-          <MaterialIcons
-            color={getTabColor(
-              tab.screenName === currentScreenName,
-              invertColors
-            )}
-            name={tab.iconName}
-            size={n(48)}
-          />
-        </HapticPressable>
-      ))}
+    <View style={[styles.navbar, { backgroundColor: bg }]}>
+      <HapticPressable
+        onPress={() => navigation.navigate(isOnRecents ? "index" : "recents")}
+      >
+        <MaterialIcons color={iconColor} name="schedule" size={n(48)} />
+      </HapticPressable>
+
+      <HapticPressable onPress={() => router.push("/search")}>
+        <MaterialIcons color={iconColor} name="search" size={n(48)} />
+      </HapticPressable>
+
+      <HapticPressable onPress={() => router.push("/settings")}>
+        <MaterialIcons color={iconColor} name="settings" size={n(48)} />
+      </HapticPressable>
     </View>
   );
 }

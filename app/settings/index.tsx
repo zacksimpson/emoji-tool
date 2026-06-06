@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "@/components/Header";
 import { HapticPressable } from "@/components/HapticPressable";
 import { StyledText } from "@/components/StyledText";
+import { SwipeBackContainer } from "@/components/SwipeBackContainer";
 import { ToggleSwitch } from "@/components/ToggleSwitch";
 import { useInvertColors } from "@/contexts/InvertColorsContext";
 import { useTopUsed } from "@/contexts/TopUsedContext";
@@ -26,6 +27,10 @@ export default function SettingsScreen() {
 
   const sortLabel = sortMode === "top-used" ? "Top Used" : "Most Recent";
 
+  const handleBack = () => {
+    if (router.canGoBack()) router.back();
+  };
+
   const handleResetTopUsed = () => {
     router.push({
       pathname: "/confirm",
@@ -33,38 +38,37 @@ export default function SettingsScreen() {
         message: "All Top Used emoji data will be cleared.",
         confirmText: "RESET",
         action: "resetTopUsed",
-        returnPath: "/(tabs)/settings",
+        returnPath: "/settings",
       },
     });
   };
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-      <Header headerTitle="Settings" hideBackButton />
+    <SwipeBackContainer onSwipeBack={handleBack}>
+      <SafeAreaView edges={["top"]} style={[styles.root, { backgroundColor: bg }]}>
+        <Header headerTitle="Settings" />
 
-      <View style={styles.content}>
-        {/* Invert Colors toggle */}
-        <ToggleSwitch
-          label="Invert colors"
-          value={invertColors}
-          onValueChange={setInvertColors}
-        />
+        <View style={styles.content}>
+          <ToggleSwitch
+            label="Invert colors"
+            value={invertColors}
+            onValueChange={setInvertColors}
+          />
 
-        {/* Sort Frequents selector — SelectorButton pattern, no dividers */}
-        <HapticPressable
-          onPress={() => router.push("/settings/sort-frequents")}
-          style={styles.selectorRow}
-        >
-          <StyledText style={styles.selectorLabel}>Sort Frequents</StyledText>
-          <StyledText style={styles.selectorValue}>{sortLabel}</StyledText>
-        </HapticPressable>
+          <HapticPressable
+            onPress={() => router.push("/settings/sort-frequents")}
+            style={styles.selectorRow}
+          >
+            <StyledText style={styles.selectorLabel}>Sort Frequents</StyledText>
+            <StyledText style={styles.selectorValue}>{sortLabel}</StyledText>
+          </HapticPressable>
 
-        {/* Reset Top Used */}
-        <HapticPressable onPress={handleResetTopUsed} style={styles.resetRow}>
-          <StyledText style={styles.resetText}>Reset Top Used</StyledText>
-        </HapticPressable>
-      </View>
-    </SafeAreaView>
+          <HapticPressable onPress={handleResetTopUsed} style={styles.resetRow}>
+            <StyledText style={styles.resetText}>Reset Top Used</StyledText>
+          </HapticPressable>
+        </View>
+      </SafeAreaView>
+    </SwipeBackContainer>
   );
 }
 

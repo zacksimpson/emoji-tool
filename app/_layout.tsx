@@ -27,8 +27,10 @@ export default function RootLayout() {
           <TopUsedProvider>
             <Stack screenOptions={{ headerShown: false, animation: "none" }}>
               <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="confirm" />
+              <Stack.Screen name="search" />
+              <Stack.Screen name="settings" />
               <Stack.Screen name="settings/sort-frequents" />
+              <Stack.Screen name="confirm" />
             </Stack>
           </TopUsedProvider>
         </SelectedProvider>

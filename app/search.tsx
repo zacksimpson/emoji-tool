@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   FlatList,
@@ -9,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "@/components/Header";
 import { HapticPressable } from "@/components/HapticPressable";
 import { StyledText } from "@/components/StyledText";
+import { SwipeBackContainer } from "@/components/SwipeBackContainer";
 import { TextInput } from "@/components/TextInput";
 import { useInvertColors } from "@/contexts/InvertColorsContext";
 import { useSelected } from "@/contexts/SelectedContext";
@@ -29,6 +31,10 @@ export default function SearchScreen() {
   const cellSize = width / COLS;
 
   const results = query.trim().length > 0 ? searchEmoji(query) : [];
+
+  const handleBack = () => {
+    if (router.canGoBack()) router.back();
+  };
 
   const renderItem = useCallback(
     ({ item }: { item: EmojiEntry }) => (
@@ -53,34 +59,36 @@ export default function SearchScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-      <Header headerTitle="Search" hideBackButton />
-      <View style={styles.inputWrapper}>
-        <TextInput
-          autoFocus={false}
-          onChangeText={setQuery}
-          placeholder="Search emoji..."
-          value={query}
-        />
-      </View>
-      {query.trim().length > 0 && results.length === 0 ? (
-        <View style={styles.empty}>
-          <StyledText style={styles.emptyText}>No results</StyledText>
+    <SwipeBackContainer onSwipeBack={handleBack}>
+      <SafeAreaView edges={["top"]} style={[styles.root, { backgroundColor: bg }]}>
+        <Header headerTitle="Search" />
+        <View style={styles.inputWrapper}>
+          <TextInput
+            autoFocus={false}
+            onChangeText={setQuery}
+            placeholder="Search emoji..."
+            value={query}
+          />
         </View>
-      ) : (
-        <FlatList
-          data={results}
-          keyExtractor={(item) => item.emoji}
-          renderItem={renderItem}
-          numColumns={COLS}
-          keyboardShouldPersistTaps="handled"
-          overScrollMode="never"
-          showsVerticalScrollIndicator={false}
-          style={{ backgroundColor: bg }}
-          contentContainerStyle={styles.grid}
-        />
-      )}
-    </SafeAreaView>
+        {query.trim().length > 0 && results.length === 0 ? (
+          <View style={styles.empty}>
+            <StyledText style={styles.emptyText}>No results</StyledText>
+          </View>
+        ) : (
+          <FlatList
+            data={results}
+            keyExtractor={(item) => item.emoji}
+            renderItem={renderItem}
+            numColumns={COLS}
+            keyboardShouldPersistTaps="handled"
+            overScrollMode="never"
+            showsVerticalScrollIndicator={false}
+            style={{ backgroundColor: bg }}
+            contentContainerStyle={styles.grid}
+          />
+        )}
+      </SafeAreaView>
+    </SwipeBackContainer>
   );
 }
 

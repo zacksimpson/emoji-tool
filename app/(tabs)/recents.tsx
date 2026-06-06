@@ -17,7 +17,7 @@ import { n } from "@/utils/scaling";
 
 const COLS = 6;
 
-export default function TopUsedScreen() {
+export default function RecentsScreen() {
   const { invertColors } = useInvertColors();
   const { width } = useWindowDimensions();
   const { selected, addEmoji, clearEmoji } = useSelected();
@@ -35,7 +35,6 @@ export default function TopUsedScreen() {
     setTimeout(() => setCopied(false), 2000);
   }, [selected]);
 
-  // Build rows of COLS
   const rows: string[][] = [];
   for (let i = 0; i < topEmoji.length; i += COLS) {
     rows.push(topEmoji.slice(i, i + COLS));
@@ -71,7 +70,6 @@ export default function TopUsedScreen() {
   if (topEmoji.length === 0) {
     return (
       <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-        {/* Header even when empty */}
         <View style={styles.header}>
           <HapticPressable onPress={handleCopy}>
             <StyledText style={[styles.headerBtn, copied && styles.headerBtnDone]}>
@@ -84,7 +82,7 @@ export default function TopUsedScreen() {
         </View>
         <View style={styles.empty}>
           <StyledText style={styles.emptyText}>
-            Tap emoji on Home or Search to build your Top Used list.
+            Tap emoji on Home or Search to build your Recents list.
           </StyledText>
         </View>
       </SafeAreaView>
@@ -93,7 +91,6 @@ export default function TopUsedScreen() {
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-      {/* Header — COPY left, CLEAR right */}
       <View style={styles.header}>
         <HapticPressable onPress={handleCopy}>
           <StyledText style={[styles.headerBtn, copied && styles.headerBtnDone]}>
@@ -105,7 +102,6 @@ export default function TopUsedScreen() {
         </HapticPressable>
       </View>
 
-      {/* Shared selection tray */}
       {selected.length > 0 && (
         <View style={styles.tray}>
           <StyledText style={styles.trayText} numberOfLines={1} ellipsizeMode="tail">
@@ -114,7 +110,6 @@ export default function TopUsedScreen() {
         </View>
       )}
 
-      {/* Grid */}
       <FlatList
         data={rows}
         keyExtractor={(_, i) => String(i)}
