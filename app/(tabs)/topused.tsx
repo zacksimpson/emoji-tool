@@ -25,7 +25,6 @@ export default function TopUsedScreen() {
   const [copied, setCopied] = useState(false);
 
   const bg = invertColors ? "white" : "black";
-  const dividerColor = invertColors ? "#DDDDDD" : "#1A1A1A";
   const cellSize = width / COLS;
 
   const handleCopy = useCallback(() => {
@@ -73,7 +72,7 @@ export default function TopUsedScreen() {
     return (
       <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
         {/* Header even when empty */}
-        <View style={[styles.header, { borderBottomColor: dividerColor }]}>
+        <View style={styles.header}>
           <HapticPressable onPress={handleCopy}>
             <StyledText style={[styles.headerBtn, copied && styles.headerBtnDone]}>
               {copied ? "COPIED" : "COPY"}
@@ -95,7 +94,7 @@ export default function TopUsedScreen() {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
       {/* Header — COPY left, CLEAR right */}
-      <View style={[styles.header, { borderBottomColor: dividerColor }]}>
+      <View style={styles.header}>
         <HapticPressable onPress={handleCopy}>
           <StyledText style={[styles.headerBtn, copied && styles.headerBtnDone]}>
             {copied ? "COPIED" : "COPY"}
@@ -108,7 +107,7 @@ export default function TopUsedScreen() {
 
       {/* Shared selection tray */}
       {selected.length > 0 && (
-        <View style={[styles.tray, { borderBottomColor: dividerColor }]}>
+        <View style={styles.tray}>
           <StyledText style={styles.trayText} numberOfLines={1} ellipsizeMode="tail">
             {selected.join("")}
           </StyledText>
@@ -137,14 +136,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: n(22),
     paddingVertical: n(14),
-    borderBottomWidth: 1,
   },
   headerBtn: { fontSize: n(20), letterSpacing: n(1) },
   headerBtnDone: { opacity: 0.35 },
   tray: {
     paddingHorizontal: n(22),
     paddingVertical: n(14),
-    borderBottomWidth: 1,
   },
   trayText: { fontSize: n(28) },
   grid: { paddingTop: n(8) },

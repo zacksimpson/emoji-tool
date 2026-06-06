@@ -191,7 +191,6 @@ export default function HomeScreen() {
 
   const cellSize = width / COLS;
   const bg = invertColors ? "white" : "black";
-  const dividerColor = invertColors ? "#DDDDDD" : "#1A1A1A";
 
   const handleCopy = useCallback(() => {
     if (selected.length === 0) return;
@@ -205,7 +204,7 @@ export default function HomeScreen() {
     ({ item }: { item: RowItem }) => {
       if (item.type === "header") {
         return (
-          <View style={[styles.sectionHeader, { borderBottomColor: dividerColor }]}>
+          <View style={styles.sectionHeader}>
             <StyledText style={styles.sectionHeaderText}>{item.label}</StyledText>
           </View>
         );
@@ -229,12 +228,12 @@ export default function HomeScreen() {
         </View>
       );
     },
-    [cellSize, dividerColor, addEmoji, trackEmoji]
+    [cellSize, addEmoji, trackEmoji]
   );
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-      <View style={[styles.header, { borderBottomColor: dividerColor }]}>
+      <View style={styles.header}>
         <HapticPressable onPress={handleCopy}>
           <StyledText style={[styles.headerBtn, copied && styles.headerBtnDone]}>
             {copied ? "COPIED" : "COPY"}
@@ -246,7 +245,7 @@ export default function HomeScreen() {
       </View>
 
       {selected.length > 0 && (
-        <View style={[styles.tray, { borderBottomColor: dividerColor }]}>
+        <View style={styles.tray}>
           <StyledText style={styles.trayText} numberOfLines={1} ellipsizeMode="tail">
             {selected.join("")}
           </StyledText>
@@ -276,21 +275,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: n(22),
     paddingVertical: n(14),
-    borderBottomWidth: 1,
   },
   headerBtn: { fontSize: n(20), letterSpacing: n(1) },
   headerBtnDone: { opacity: 0.35 },
   tray: {
     paddingHorizontal: n(22),
     paddingVertical: n(14),
-    borderBottomWidth: 1,
   },
   trayText: { fontSize: n(28) },
   sectionHeader: {
     paddingHorizontal: n(22),
     paddingTop: n(28),
     paddingBottom: n(10),
-    borderBottomWidth: 1,
   },
   sectionHeaderText: { fontSize: n(17) },
   emojiRow: { flexDirection: "row" },

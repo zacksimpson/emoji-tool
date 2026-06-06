@@ -26,7 +26,6 @@ export default function SearchScreen() {
   const [query, setQuery] = useState("");
 
   const bg = invertColors ? "white" : "black";
-  const dividerColor = invertColors ? "#DDDDDD" : "#1A1A1A";
   const cellSize = width / COLS;
 
   const results = query.trim().length > 0 ? searchEmoji(query) : [];
@@ -56,7 +55,7 @@ export default function SearchScreen() {
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
       <Header headerTitle="Search" hideBackButton />
-      <View style={[styles.inputWrapper, { borderBottomColor: dividerColor }]}>
+      <View style={styles.inputWrapper}>
         <TextInput
           autoFocus={false}
           onChangeText={setQuery}
@@ -89,7 +88,6 @@ const styles = StyleSheet.create({
   inputWrapper: {
     paddingHorizontal: n(22),
     paddingVertical: n(12),
-    borderBottomWidth: 1,
   },
   grid: { paddingTop: n(8) },
   emojiText: { textAlign: "center" },
