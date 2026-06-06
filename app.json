@@ -14,6 +14,12 @@
       "expo-router",
       "./plugins/withDebugApplicationIdSuffix",
       [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000"
+        }
+      ],
+      [
         "expo-font",
         {
           "fonts": [
