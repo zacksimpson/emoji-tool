@@ -1,11 +1,11 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { type Href, router, useLocalSearchParams } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HapticPressable } from "@/components/HapticPressable";
+import { Header } from "@/components/Header";
 import { StyledText } from "@/components/StyledText";
 import { SwipeBackContainer } from "@/components/SwipeBackContainer";
 import { useInvertColors } from "@/contexts/InvertColorsContext";
-import { MaterialIcons } from "@expo/vector-icons";
 import { n } from "@/utils/scaling";
 
 export default function ConfirmScreen() {
@@ -18,76 +18,62 @@ export default function ConfirmScreen() {
   }>();
 
   const bg = invertColors ? "white" : "black";
-  const iconColor = invertColors ? "black" : "white";
+  const textColor = invertColors ? "black" : "white";
+
+  const handleConfirm = () => {
+    const path = (returnPath || "/(tabs)/") as Href;
+    // biome-ignore lint/suspicious/noExplicitAny: expo-router dismissTo with dynamic pathname requires any
+    router.dismissTo({ pathname: path, params: { confirmed: "true", action: action ?? "" } } as any);
+  };
 
   const handleBack = () => {
     if (router.canGoBack()) router.back();
   };
 
-  const handleConfirm = () => {
-    router.replace({ pathname: returnPath, params: { confirmed: "true", action } } as Parameters<typeof router.replace>[0]);
-  };
-
   return (
     <SwipeBackContainer onSwipeBack={handleBack}>
-      <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
-        {/* Back arrow only — no title */}
-        <View style={styles.header}>
-          <HapticPressable onPress={handleBack}>
-            <View style={styles.backButton}>
-              <MaterialIcons color={iconColor} name="arrow-back-ios" size={n(28)} />
-            </View>
-          </HapticPressable>
+      <SafeAreaView
+        edges={["top"]}
+        style={[styles.container, { backgroundColor: bg }]}
+      >
+        <Header />
+
+        <View style={styles.messageContainer}>
+          <StyledText style={styles.messageText}>{message}</StyledText>
         </View>
 
-        {/* Centered message */}
-        <View style={styles.body}>
-          <StyledText style={styles.message}>{message}</StyledText>
-        </View>
-
-        {/* CONFIRM/RESET pushed toward bottom */}
-        <View style={styles.footer}>
-          <HapticPressable onPress={handleConfirm}>
-            <StyledText style={styles.confirmBtn}>
-              {confirmText ?? "CONFIRM"}
-            </StyledText>
-          </HapticPressable>
-        </View>
+        <HapticPressable onPress={handleConfirm} style={styles.confirmBtn}>
+          <StyledText style={[styles.confirmText, { color: textColor }]}>
+            {(confirmText ?? "CONFIRM").toUpperCase()}
+          </StyledText>
+        </HapticPressable>
       </SafeAreaView>
     </SwipeBackContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: {
-    paddingHorizontal: n(22),
-    paddingVertical: n(5),
-  },
-  backButton: {
-    width: n(32),
-    height: n(32),
-    alignItems: "center",
-    paddingTop: n(6),
-    paddingRight: n(4),
-  },
-  body: {
+  container: {
     flex: 1,
-    justifyContent: "center",
+  },
+  messageContainer: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "flex-start",
+    paddingTop: n(80),
     paddingHorizontal: n(40),
   },
-  message: {
-    fontSize: n(28),
+  messageText: {
+    fontSize: n(22),
     textAlign: "center",
-    lineHeight: n(38),
-  },
-  footer: {
-    alignItems: "center",
-    paddingBottom: n(80),
+    lineHeight: n(32),
   },
   confirmBtn: {
-    fontSize: n(26),
-    letterSpacing: n(4),
+    alignItems: "center",
+    paddingBottom: n(28),
+  },
+  confirmText: {
+    fontSize: n(24),
+    letterSpacing: n(5),
   },
 });
