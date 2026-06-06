@@ -155,5 +155,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: n(20),
+    textAlign: "center",
   },
 });
