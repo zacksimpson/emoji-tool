@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: n(22),
     paddingVertical: n(14),
   },
-  headerBtn: { fontSize: n(20), letterSpacing: n(1) },
+  headerBtn: { fontSize: n(24), letterSpacing: n(5) },
   headerBtnDone: { opacity: 0.35 },
   tray: {
     paddingHorizontal: n(22),
