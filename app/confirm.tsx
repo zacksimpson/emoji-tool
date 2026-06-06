@@ -25,10 +25,7 @@ export default function ConfirmScreen() {
   };
 
   const handleConfirm = () => {
-    router.replace({
-      pathname: returnPath as string,
-      params: { confirmed: "true", action },
-    });
+    router.replace({ pathname: returnPath, params: { confirmed: "true", action } } as Parameters<typeof router.replace>[0]);
   };
 
   return (
