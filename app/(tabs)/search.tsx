@@ -73,6 +73,7 @@ export default function SearchScreen() {
           keyExtractor={(item) => item.emoji}
           renderItem={renderItem}
           numColumns={COLS}
+          keyboardShouldPersistTaps="handled"
           overScrollMode="never"
           showsVerticalScrollIndicator={false}
           style={{ backgroundColor: bg }}
