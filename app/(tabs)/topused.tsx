@@ -155,6 +155,5 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: n(20),
-    opacity: 0.4,
   },
 });

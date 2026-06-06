@@ -98,5 +98,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: n(22),
     paddingTop: n(32),
   },
-  emptyText: { fontSize: n(20), opacity: 0.4 },
+  emptyText: { fontSize: n(20) },
 });
