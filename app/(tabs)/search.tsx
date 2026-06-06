@@ -53,7 +53,7 @@ export default function SearchScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: bg }]}>
+    <SafeAreaView edges={["top"]} style={[styles.root, { backgroundColor: bg }]}>
       <Header headerTitle="Search" hideBackButton />
       <View style={styles.inputWrapper}>
         <TextInput
@@ -86,8 +86,8 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   inputWrapper: {
-    paddingHorizontal: n(22),
-    paddingVertical: n(12),
+    paddingHorizontal: n(28),
+    paddingTop: n(48),
   },
   grid: { paddingTop: n(8) },
   emojiText: { textAlign: "center" },
