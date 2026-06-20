@@ -50,7 +50,7 @@ EAS will build the APK in the cloud and provide a download link.
 
 ---
 
-## Credits
+## SupportIf any of my tools have been useful to you, I'd love to hear from you! Feel free to reach out [here](mailto:zacksimpson24@gmail.com). Another way to support is to [consider sponsoring](https:## Credits## Creditsgithub.com## Creditssponsors## Creditszacksimpson). Either way, it means a lot!## Creditsn## Creditsn---## Creditsn## Creditsn## Credits
 
 - [vandamd](https://github.com/vandamd) – [light-template](https://github.com/vandamd/light-template), the community Expo template this app is built on
 - [Unicode Full Emoji List, v13.1](https://unicode.org/emoji/charts-13.1/full-emoji-list.html) – for full official index of emojis, names, and keywords
