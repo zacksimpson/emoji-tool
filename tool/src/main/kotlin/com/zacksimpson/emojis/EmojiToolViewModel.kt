@@ -8,19 +8,32 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-enum class EmojiTab { Home, Search, TopUsed, Settings }
+/** Grid is the app's main/default content — not a "Home tab" among equals. */
+enum class EmojiMode { Grid, Search, TopUsed, Settings }
 
 private const val COPIED_RESET_DELAY_MS = 2000L
 
 class EmojiToolViewModel : LightViewModel<Unit>() {
-    private val _currentTab = MutableStateFlow(EmojiTab.Home)
-    val currentTab: StateFlow<EmojiTab> = _currentTab.asStateFlow()
+    private val _mode = MutableStateFlow(EmojiMode.Grid)
+    val mode: StateFlow<EmojiMode> = _mode.asStateFlow()
 
     private val _copied = MutableStateFlow(false)
     val copied: StateFlow<Boolean> = _copied.asStateFlow()
 
-    fun selectTab(tab: EmojiTab) {
-        _currentTab.value = tab
+    fun openSearch() {
+        _mode.value = EmojiMode.Search
+    }
+
+    fun openTopUsed() {
+        _mode.value = EmojiMode.TopUsed
+    }
+
+    fun openSettings() {
+        _mode.value = EmojiMode.Settings
+    }
+
+    fun closeToGrid() {
+        _mode.value = EmojiMode.Grid
     }
 
     fun selectEmoji(emoji: String) {
