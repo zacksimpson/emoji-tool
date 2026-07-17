@@ -14,6 +14,7 @@ import com.thelightphone.lp3Keyboard.ui.SpecialKey
  */
 class EmojiSearchInputCallback(
     private val state: TextFieldState,
+    private val onClose: () -> Unit = {},
 ) : Lp3RepeatableKeyboardCallback {
 
     override fun onKeyPressed(code: Int) = Unit
@@ -27,9 +28,16 @@ class EmojiSearchInputCallback(
     }
 
     override fun onSpecialKeyReleased(key: SpecialKey) {
-        if (key == SpecialKey.Backspace) {
-            val before = state.text.subSequence(0, state.selection.min)
-            deleteBeforeCursor(surrogateAwareDeleteCount(before))
+        when (key) {
+            SpecialKey.Backspace -> {
+                val before = state.text.subSequence(0, state.selection.min)
+                deleteBeforeCursor(surrogateAwareDeleteCount(before))
+            }
+            // Only delegated to us when the keyboard is already on its root (letter) layout —
+            // DefaultLp3KeyboardViewModel handles Close itself (returning to the letter layout)
+            // when a sub-layout like Emoji/Symbols/Numbers is active.
+            SpecialKey.Close -> onClose()
+            else -> Unit
         }
     }
 

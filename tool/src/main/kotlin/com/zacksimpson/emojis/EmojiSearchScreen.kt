@@ -17,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -27,17 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.thelightphone.lp3Keyboard.ui.CapsLockedLayout
 import com.thelightphone.lp3Keyboard.ui.DefaultLp3KeyboardViewModel
-import com.thelightphone.lp3Keyboard.ui.EmojiLayout
-import com.thelightphone.lp3Keyboard.ui.ExtendedCharKeyboard
 import com.thelightphone.lp3Keyboard.ui.KeyboardOptions
 import com.thelightphone.lp3Keyboard.ui.Layout
 import com.thelightphone.lp3Keyboard.ui.LayoutOptions
-import com.thelightphone.lp3Keyboard.ui.LowerCaseLayout
-import com.thelightphone.lp3Keyboard.ui.NumberLayout
-import com.thelightphone.lp3Keyboard.ui.SymbolsLayout
-import com.thelightphone.lp3Keyboard.ui.UpperCaseLayout
 import com.thelightphone.sdk.rememberKeyboardOptions
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightText
@@ -49,6 +44,7 @@ import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.designVerticalPxToDp
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.keyboard.LightEmbeddedLp3Keyboard
+import com.thelightphone.sdk.ui.lightClickable
 import kotlinx.coroutines.flow.StateFlow
 
 private const val QUERY_UNDERLINE_THICKNESS_PX = 3f
@@ -67,7 +63,11 @@ fun EmojiSearchContent(
         derivedStateOf { searchEmoji(textFieldState.text.toString()) }
     }
 
-    val callback = remember(textFieldState) { EmojiSearchInputCallback(textFieldState) }
+    var keyboardVisible by remember { mutableStateOf(true) }
+
+    val callback = remember(textFieldState) {
+        EmojiSearchInputCallback(textFieldState, onClose = { keyboardVisible = false })
+    }
     val keyboardViewModel: DefaultLp3KeyboardViewModel = viewModel(
         key = "EmojiSearchScreen",
         factory = keyboardViewModelFactory(callback, keyboardOptionsFlow),
@@ -80,7 +80,10 @@ fun EmojiSearchContent(
             modifier = Modifier.padding(bottom = 1f.gridUnitsAsDp()),
         )
 
-        QueryDisplay(query = textFieldState.text.toString())
+        QueryDisplay(
+            query = textFieldState.text.toString(),
+            onClick = { keyboardVisible = true },
+        )
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             if (textFieldState.text.isEmpty()) {
@@ -96,15 +99,18 @@ fun EmojiSearchContent(
             }
         }
 
-        LightEmbeddedLp3Keyboard(viewModel = keyboardViewModel)
+        if (keyboardVisible) {
+            LightEmbeddedLp3Keyboard(viewModel = keyboardViewModel)
+        }
     }
 }
 
 @Composable
-private fun QueryDisplay(query: String) {
+private fun QueryDisplay(query: String, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .lightClickable(onClick = onClick)
             .padding(horizontal = 1f.gridUnitsAsDp(), vertical = 0.25f.gridUnitsAsDp()),
     ) {
         LightText(
@@ -153,13 +159,10 @@ private fun keyboardViewModelFactory(
         return DefaultLp3KeyboardViewModel(
             callback,
             keyboardOptionsFlow = keyboardOptionsFlow,
-            optionsForLayout = { layout: Layout ->
-                val showCloseButton = when (layout) {
-                    EmojiLayout, is ExtendedCharKeyboard -> true
-                    CapsLockedLayout, LowerCaseLayout, NumberLayout, SymbolsLayout, UpperCaseLayout -> false
-                }
-                LayoutOptions(showCloseButton)
-            },
+            // Always show the close key, on every sub-layout (letters/numbers/symbols/emoji) —
+            // unlike a submit-flow screen (e.g. LightTextInputEditor), this screen wants the
+            // keyboard collapsible at any time so more results are visible.
+            optionsForLayout = { _: Layout -> LayoutOptions(displayCloseButton = true) },
         ) as T
     }
 }
