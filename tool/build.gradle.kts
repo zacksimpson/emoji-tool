@@ -58,5 +58,6 @@ kotlin {
 
 dependencies {
     implementation(project(":sdk:client"))
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     testImplementation(libs.kotlin.test)
 }

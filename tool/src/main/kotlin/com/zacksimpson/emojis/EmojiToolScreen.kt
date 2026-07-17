@@ -69,7 +69,10 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
                         onOpenSettings = viewModel::openSettings,
                     )
 
-                    EmojiMode.Search -> SearchModeContent(onBack = viewModel::closeToGrid)
+                    EmojiMode.Search -> EmojiSearchContent(
+                        onBack = viewModel::closeToGrid,
+                        onEmojiTap = viewModel::selectEmoji,
+                    )
 
                     EmojiMode.TopUsed -> TopUsedModeContent(
                         selected = selected,
@@ -151,20 +154,6 @@ private fun TopUsedModeContent(
                 LightBarButton.LightIcon(icon = LightIcons.CLOSE, onClick = onBack),
             ),
         )
-    }
-}
-
-@Composable
-private fun SearchModeContent(onBack: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        LightTopBar(
-            leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = onBack),
-            center = LightTopBarCenter.Text("Search"),
-            modifier = Modifier.padding(bottom = 1f.gridUnitsAsDp()),
-        )
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            PlaceholderContent("Search — coming soon (Phase 3, live-filter as you type)")
-        }
     }
 }
 
