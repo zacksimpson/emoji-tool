@@ -1,6 +1,7 @@
 package com.zacksimpson.emojis
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
@@ -59,6 +60,8 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
         val selected by SelectionStore.selected.collectAsState()
         val copied by viewModel.copied.collectAsState()
         val recents by viewModel.recents.collectAsState()
+        val topUsedPreview by viewModel.topUsedPreview.collectAsState()
+        val showTopUsedPreview by viewModel.showTopUsedPreview.collectAsState()
 
         LightTheme(colors = themeColors) {
             Box(
@@ -70,6 +73,8 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
                     EmojiMode.Grid -> GridModeContent(
                         selected = selected,
                         copied = copied,
+                        showTopUsedPreview = showTopUsedPreview,
+                        topUsedPreview = topUsedPreview,
                         onCopy = viewModel::copySelection,
                         onClear = viewModel::clearSelection,
                         onEmojiTap = viewModel::selectEmoji,
@@ -93,7 +98,11 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
                         onBack = viewModel::closeToGrid,
                     )
 
-                    EmojiMode.Settings -> SettingsModeContent(onBack = viewModel::closeToGrid)
+                    EmojiMode.Settings -> SettingsModeContent(
+                        showTopUsedPreview = showTopUsedPreview,
+                        onShowTopUsedPreviewChange = viewModel::setShowTopUsedPreview,
+                        onBack = viewModel::closeToGrid,
+                    )
                 }
             }
         }
@@ -104,6 +113,8 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
 private fun GridModeContent(
     selected: List<String>,
     copied: Boolean,
+    showTopUsedPreview: Boolean,
+    topUsedPreview: List<String>,
     onCopy: () -> Unit,
     onClear: () -> Unit,
     onEmojiTap: (String) -> Unit,
@@ -122,6 +133,8 @@ private fun GridModeContent(
 
             EmojiGrid(
                 onEmojiTap = onEmojiTap,
+                showTopUsedPreview = showTopUsedPreview,
+                topUsedPreview = topUsedPreview,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
@@ -231,16 +244,22 @@ private fun RecentsGrid(
 }
 
 @Composable
-private fun SettingsModeContent(onBack: () -> Unit) {
+private fun SettingsModeContent(
+    showTopUsedPreview: Boolean,
+    onShowTopUsedPreviewChange: (Boolean) -> Unit,
+    onBack: () -> Unit,
+) {
     Column(modifier = Modifier.fillMaxSize()) {
         LightTopBar(
             leftButton = LightBarButton.LightIcon(icon = LightIcons.BACK, onClick = onBack),
             center = LightTopBarCenter.Text("Settings"),
             modifier = Modifier.padding(bottom = 1f.gridUnitsAsDp()),
         )
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            PlaceholderContent("Settings — coming soon (Phase 5)")
-        }
+        ToggleSwitch(
+            label = "Show Top Used",
+            value = showTopUsedPreview,
+            onValueChange = onShowTopUsedPreviewChange,
+        )
     }
 }
 
@@ -257,7 +276,6 @@ private fun SelectionTray(selected: List<String>) {
         text = selected.joinToString(""),
         variant = LightTextVariant.Subtitle,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = HEADER_HEIGHT_GRID_UNITS.gridUnitsAsDp())
@@ -265,7 +283,8 @@ private fun SelectionTray(selected: List<String>) {
             .padding(
                 horizontal = 1f.gridUnitsAsDp(),
                 vertical = 0.5f.gridUnitsAsDp(),
-            ),
+            )
+            .horizontalScroll(rememberScrollState()),
     )
 }
 

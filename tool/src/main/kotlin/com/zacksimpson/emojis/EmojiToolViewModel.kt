@@ -22,6 +22,8 @@ class EmojiToolViewModel(private val recentsStore: RecentsStore) : LightViewMode
 
     val recents: StateFlow<List<String>> = recentsStore.recents
     val sortMode: StateFlow<SortMode> = recentsStore.sortMode
+    val topUsedPreview: StateFlow<List<String>> = recentsStore.topUsedPreview
+    val showTopUsedPreview: StateFlow<Boolean> = recentsStore.showTopUsedPreview
 
     fun openSearch() {
         _mode.value = EmojiMode.Search
@@ -54,6 +56,10 @@ class EmojiToolViewModel(private val recentsStore: RecentsStore) : LightViewMode
 
     fun setSortMode(mode: SortMode) {
         recentsStore.setSortMode(mode)
+    }
+
+    fun setShowTopUsedPreview(value: Boolean) {
+        recentsStore.setShowTopUsedPreview(value)
     }
 
     fun copySelection() {

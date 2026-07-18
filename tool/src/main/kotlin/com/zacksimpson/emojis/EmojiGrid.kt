@@ -18,6 +18,8 @@ private const val HORIZONTAL_PADDING_GRID_UNITS = 1f
 @Composable
 fun EmojiGrid(
     onEmojiTap: (String) -> Unit,
+    showTopUsedPreview: Boolean,
+    topUsedPreview: List<String>,
     modifier: Modifier = Modifier,
 ) {
     val horizontalPadding = HORIZONTAL_PADDING_GRID_UNITS.gridUnitsAsDp()
@@ -28,6 +30,24 @@ fun EmojiGrid(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = horizontalPadding),
     ) {
+        if (showTopUsedPreview && topUsedPreview.isNotEmpty()) {
+            item(key = "header-top-used", span = { GridItemSpan(maxLineSpan) }) {
+                LightText(
+                    text = "Top Used",
+                    variant = LightTextVariant.Detail,
+                    modifier = Modifier.padding(
+                        top = 1.5f.gridUnitsAsDp(),
+                        bottom = 0.5f.gridUnitsAsDp(),
+                    ),
+                )
+            }
+            itemsIndexed(
+                items = topUsedPreview,
+                key = { index, _ -> "top-used-$index" },
+            ) { _, emoji ->
+                EmojiCell(emoji = emoji, cellSize = cellSize, onClick = { onEmojiTap(emoji) })
+            }
+        }
         EMOJI_CATEGORIES.forEach { category ->
             item(
                 key = "header-${category.label}",
