@@ -4,16 +4,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.thelightphone.sdk.InitialScreen
@@ -22,6 +28,7 @@ import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcons
+import com.thelightphone.sdk.ui.LightSurfaceScheme
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightTheme
@@ -42,7 +49,8 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
     override val viewModelClass: Class<EmojiToolViewModel>
         get() = EmojiToolViewModel::class.java
 
-    override fun createViewModel(): EmojiToolViewModel = EmojiToolViewModel()
+    override fun createViewModel(): EmojiToolViewModel =
+        EmojiToolViewModel(RecentsStore.getInstance { lightContext.dataStore })
 
     @Composable
     override fun Content() {
@@ -50,6 +58,7 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
         val mode by viewModel.mode.collectAsState()
         val selected by SelectionStore.selected.collectAsState()
         val copied by viewModel.copied.collectAsState()
+        val recents by viewModel.recents.collectAsState()
 
         LightTheme(colors = themeColors) {
             Box(
@@ -64,7 +73,7 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
                         onCopy = viewModel::copySelection,
                         onClear = viewModel::clearSelection,
                         onEmojiTap = viewModel::selectEmoji,
-                        onOpenTopUsed = viewModel::openTopUsed,
+                        onOpenRecents = viewModel::openRecents,
                         onOpenSearch = viewModel::openSearch,
                         onOpenSettings = viewModel::openSettings,
                     )
@@ -74,11 +83,13 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
                         onEmojiTap = viewModel::selectEmoji,
                     )
 
-                    EmojiMode.TopUsed -> TopUsedModeContent(
+                    EmojiMode.Recents -> RecentsModeContent(
                         selected = selected,
                         copied = copied,
+                        recents = recents,
                         onCopy = viewModel::copySelection,
                         onClear = viewModel::clearSelection,
+                        onEmojiTap = viewModel::selectEmoji,
                         onBack = viewModel::closeToGrid,
                     )
 
@@ -96,64 +107,126 @@ private fun GridModeContent(
     onCopy: () -> Unit,
     onClear: () -> Unit,
     onEmojiTap: (String) -> Unit,
-    onOpenTopUsed: () -> Unit,
+    onOpenRecents: () -> Unit,
     onOpenSearch: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        EmojiHeaderBar(
-            leftLabel = if (copied) "COPIED" else "COPY",
-            onLeftClick = onCopy,
-            rightLabel = "CLEAR",
-            onRightClick = onClear,
-        )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            EmojiHeaderBar(
+                leftLabel = if (copied) "COPIED" else "COPY",
+                onLeftClick = onCopy,
+                rightLabel = "CLEAR",
+                onRightClick = onClear,
+            )
+
+            EmojiGrid(
+                onEmojiTap = onEmojiTap,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            )
+
+            LightBottomBar(
+                items = listOf(
+                    LightBarButton.Icon(
+                        painter = recentsIconPainter(),
+                        onClick = onOpenRecents,
+                        contentDescription = "Recents",
+                    ),
+                    LightBarButton.LightIcon(icon = LightIcons.SEARCH, onClick = onOpenSearch),
+                    LightBarButton.LightIcon(icon = LightIcons.SETTINGS, onClick = onOpenSettings),
+                ),
+            )
+        }
 
         SelectionTray(selected)
+    }
+}
 
-        EmojiGrid(
-            onEmojiTap = onEmojiTap,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-        )
+/**
+ * LightBarButton.Icon (custom icons) renders via a plain Image, not the tint-aware LightIcon
+ * composable, so — matching how the SDK's own built-in icons ship white/black pairs — we supply
+ * a pre-colored drawable per theme rather than relying on runtime tinting.
+ */
+@Composable
+private fun recentsIconPainter() = painterResource(
+    if (LightThemeTokens.surfaceScheme == LightSurfaceScheme.Dark) {
+        R.drawable.ic_recents_white
+    } else {
+        R.drawable.ic_recents_black
+    },
+)
 
-        LightBottomBar(
-            items = listOf(
-                LightBarButton.LightIcon(icon = LightIcons.STAR, onClick = onOpenTopUsed),
-                LightBarButton.LightIcon(icon = LightIcons.SEARCH, onClick = onOpenSearch),
-                LightBarButton.LightIcon(icon = LightIcons.SETTINGS, onClick = onOpenSettings),
-            ),
-        )
+private const val RECENTS_COLUMNS = 6
+
+@Composable
+private fun RecentsModeContent(
+    selected: List<String>,
+    copied: Boolean,
+    recents: List<String>,
+    onCopy: () -> Unit,
+    onClear: () -> Unit,
+    onEmojiTap: (String) -> Unit,
+    onBack: () -> Unit,
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            EmojiHeaderBar(
+                leftLabel = if (copied) "COPIED" else "COPY",
+                onLeftClick = onCopy,
+                rightLabel = "CLEAR",
+                onRightClick = onClear,
+            )
+
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                if (recents.isEmpty()) {
+                    PlaceholderContent("Tap emoji to build your Recents list.")
+                } else {
+                    RecentsGrid(recents = recents, onEmojiTap = onEmojiTap)
+                }
+            }
+
+            LightBottomBar(
+                items = listOf(
+                    LightBarButton.LightIcon(icon = LightIcons.CLOSE, onClick = onBack),
+                ),
+            )
+        }
+
+        SelectionTray(selected)
     }
 }
 
 @Composable
-private fun TopUsedModeContent(
-    selected: List<String>,
-    copied: Boolean,
-    onCopy: () -> Unit,
-    onClear: () -> Unit,
-    onBack: () -> Unit,
+private fun RecentsGrid(
+    recents: List<String>,
+    onEmojiTap: (String) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        EmojiHeaderBar(
-            leftLabel = if (copied) "COPIED" else "COPY",
-            onLeftClick = onCopy,
-            rightLabel = "CLEAR",
-            onRightClick = onClear,
-        )
+    val horizontalPadding = HEADER_HORIZONTAL_PADDING_GRID_UNITS.gridUnitsAsDp()
+    val cellSize = rememberEmojiCellSize(RECENTS_COLUMNS, horizontalPadding)
 
-        SelectionTray(selected)
-
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            PlaceholderContent("Top Used — coming soon (Phase 4)")
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(RECENTS_COLUMNS),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = horizontalPadding),
+    ) {
+        // Matches EmojiGrid's per-category header spacing so the SelectionTray overlay — which
+        // sits at a fixed height right below the COPY/CLEAR header — always lands on a label
+        // rather than the first row of real emoji, on this screen too.
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            LightText(
+                text = "Recents",
+                variant = LightTextVariant.Detail,
+                modifier = Modifier.padding(
+                    top = 1.5f.gridUnitsAsDp(),
+                    bottom = 0.5f.gridUnitsAsDp(),
+                ),
+            )
         }
-
-        LightBottomBar(
-            items = listOf(
-                LightBarButton.LightIcon(icon = LightIcons.CLOSE, onClick = onBack),
-            ),
-        )
+        itemsIndexed(recents, key = { index, _ -> index }) { _, emoji ->
+            EmojiCell(emoji = emoji, cellSize = cellSize, onClick = { onEmojiTap(emoji) })
+        }
     }
 }
 
@@ -171,6 +244,12 @@ private fun SettingsModeContent(onBack: () -> Unit) {
     }
 }
 
+/**
+ * Overlaid on top of the screen's Column (positioned just below the header) instead of taking a
+ * flow slot inside it — a flow-positioned tray occupies zero height until the first emoji is
+ * selected, then suddenly claims space and shifts the whole grid down, misaligning a fast second
+ * tap. As an overlay, appearing/disappearing never moves anything underneath it.
+ */
 @Composable
 private fun SelectionTray(selected: List<String>) {
     if (selected.isEmpty()) return
@@ -181,6 +260,8 @@ private fun SelectionTray(selected: List<String>) {
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = HEADER_HEIGHT_GRID_UNITS.gridUnitsAsDp())
+            .background(LightThemeTokens.colors.background)
             .padding(
                 horizontal = 1f.gridUnitsAsDp(),
                 vertical = 0.5f.gridUnitsAsDp(),

@@ -9,23 +9,26 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /** Grid is the app's main/default content — not a "Home tab" among equals. */
-enum class EmojiMode { Grid, Search, TopUsed, Settings }
+enum class EmojiMode { Grid, Search, Recents, Settings }
 
 private const val COPIED_RESET_DELAY_MS = 2000L
 
-class EmojiToolViewModel : LightViewModel<Unit>() {
+class EmojiToolViewModel(private val recentsStore: RecentsStore) : LightViewModel<Unit>() {
     private val _mode = MutableStateFlow(EmojiMode.Grid)
     val mode: StateFlow<EmojiMode> = _mode.asStateFlow()
 
     private val _copied = MutableStateFlow(false)
     val copied: StateFlow<Boolean> = _copied.asStateFlow()
 
+    val recents: StateFlow<List<String>> = recentsStore.recents
+    val sortMode: StateFlow<SortMode> = recentsStore.sortMode
+
     fun openSearch() {
         _mode.value = EmojiMode.Search
     }
 
-    fun openTopUsed() {
-        _mode.value = EmojiMode.TopUsed
+    fun openRecents() {
+        _mode.value = EmojiMode.Recents
     }
 
     fun openSettings() {
@@ -38,10 +41,19 @@ class EmojiToolViewModel : LightViewModel<Unit>() {
 
     fun selectEmoji(emoji: String) {
         SelectionStore.addEmoji(emoji)
+        recentsStore.track(emoji)
     }
 
     fun clearSelection() {
         SelectionStore.clear()
+    }
+
+    fun resetRecents() {
+        recentsStore.reset()
+    }
+
+    fun setSortMode(mode: SortMode) {
+        recentsStore.setSortMode(mode)
     }
 
     fun copySelection() {

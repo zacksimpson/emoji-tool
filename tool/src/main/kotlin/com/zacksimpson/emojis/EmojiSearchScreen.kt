@@ -22,10 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.thelightphone.lp3Keyboard.ui.DefaultLp3KeyboardViewModel
 import com.thelightphone.lp3Keyboard.ui.Layout
 import com.thelightphone.lp3Keyboard.ui.LayoutOptions
@@ -139,8 +137,7 @@ private fun SearchResultsGrid(
     onEmojiTap: (String) -> Unit,
 ) {
     val horizontalPadding = HORIZONTAL_PADDING_GRID_UNITS.gridUnitsAsDp()
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
-    val cellSize = (screenWidthDp - horizontalPadding * 2) / COLUMNS
+    val cellSize = rememberEmojiCellSize(COLUMNS, horizontalPadding)
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(COLUMNS),
