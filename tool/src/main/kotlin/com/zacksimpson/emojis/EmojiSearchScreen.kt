@@ -26,11 +26,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.thelightphone.lp3Keyboard.ui.DefaultLp3KeyboardViewModel
-import com.thelightphone.lp3Keyboard.ui.KeyboardOptions
 import com.thelightphone.lp3Keyboard.ui.Layout
 import com.thelightphone.lp3Keyboard.ui.LayoutOptions
 import com.thelightphone.sdk.rememberKeyboardOptions
@@ -45,7 +41,6 @@ import com.thelightphone.sdk.ui.designVerticalPxToDp
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.keyboard.LightEmbeddedLp3Keyboard
 import com.thelightphone.sdk.ui.lightClickable
-import kotlinx.coroutines.flow.StateFlow
 
 private const val QUERY_UNDERLINE_THICKNESS_PX = 3f
 
@@ -68,10 +63,22 @@ fun EmojiSearchContent(
     val callback = remember(textFieldState) {
         EmojiSearchInputCallback(textFieldState, onClose = { keyboardVisible = false })
     }
-    val keyboardViewModel: DefaultLp3KeyboardViewModel = viewModel(
-        key = "EmojiSearchScreen",
-        factory = keyboardViewModelFactory(callback, keyboardOptionsFlow),
-    )
+    // Constructed directly (not via the ViewModelProvider/viewModel() composable) so it's
+    // recreated fresh every time this composable enters composition, matching callback's and
+    // textFieldState's lifetime. Going through viewModel() with a constant key would cache it
+    // in the screen-level ViewModelStore forever — after the first Search visit, every later
+    // visit would keep reusing that first instance, still wired to an already-disposed
+    // TextFieldState, leaving the keyboard visually present but functionally dead.
+    val keyboardViewModel = remember(callback, keyboardOptionsFlow) {
+        DefaultLp3KeyboardViewModel(
+            callback,
+            keyboardOptionsFlow = keyboardOptionsFlow,
+            // Always show the close key, on every sub-layout (letters/numbers/symbols/emoji) —
+            // unlike a submit-flow screen (e.g. LightTextInputEditor), this screen wants the
+            // keyboard collapsible at any time so more results are visible.
+            optionsForLayout = { _: Layout -> LayoutOptions(displayCloseButton = true) },
+        )
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         LightTopBar(
@@ -86,15 +93,11 @@ fun EmojiSearchContent(
         )
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            if (textFieldState.text.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    LightText(text = "Type to search", variant = LightTextVariant.Copy)
-                }
-            } else if (results.isEmpty()) {
+            if (textFieldState.text.isNotEmpty() && results.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     LightText(text = "No results", variant = LightTextVariant.Copy, align = TextAlign.Center)
                 }
-            } else {
+            } else if (results.isNotEmpty()) {
                 SearchResultsGrid(results = results, onEmojiTap = onEmojiTap)
             }
         }
@@ -147,22 +150,5 @@ private fun SearchResultsGrid(
         items(results, key = { it.emoji }) { entry ->
             EmojiCell(emoji = entry.emoji, cellSize = cellSize, onClick = { onEmojiTap(entry.emoji) })
         }
-    }
-}
-
-private fun keyboardViewModelFactory(
-    callback: EmojiSearchInputCallback,
-    keyboardOptionsFlow: StateFlow<KeyboardOptions>,
-): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return DefaultLp3KeyboardViewModel(
-            callback,
-            keyboardOptionsFlow = keyboardOptionsFlow,
-            // Always show the close key, on every sub-layout (letters/numbers/symbols/emoji) —
-            // unlike a submit-flow screen (e.g. LightTextInputEditor), this screen wants the
-            // keyboard collapsible at any time so more results are visible.
-            optionsForLayout = { _: Layout -> LayoutOptions(displayCloseButton = true) },
-        ) as T
     }
 }
