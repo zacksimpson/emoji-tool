@@ -59,6 +59,9 @@ class RecentsStore private constructor(private val dataStore: DataStore<Preferen
     private val _showTopUsedPreview = MutableStateFlow(false)
     val showTopUsedPreview: StateFlow<Boolean> = _showTopUsedPreview.asStateFlow()
 
+    private val _horizontalLayout = MutableStateFlow(false)
+    val horizontalLayout: StateFlow<Boolean> = _horizontalLayout.asStateFlow()
+
     val recents: StateFlow<List<String>> =
         combine(_counts, _recency, _sortMode) { counts, recency, mode ->
             when (mode) {
@@ -91,6 +94,7 @@ class RecentsStore private constructor(private val dataStore: DataStore<Preferen
                 SortMode.entries.find { mode -> mode.storageValue == raw }?.let { _sortMode.value = it }
             }
             prefs[SHOW_TOP_USED_PREVIEW_KEY]?.let { _showTopUsedPreview.value = it }
+            prefs[HORIZONTAL_LAYOUT_KEY]?.let { _horizontalLayout.value = it }
             loaded.complete(Unit)
         }
     }
@@ -126,6 +130,13 @@ class RecentsStore private constructor(private val dataStore: DataStore<Preferen
         }
     }
 
+    fun setHorizontalLayout(value: Boolean) {
+        _horizontalLayout.value = value
+        scope.launch {
+            dataStore.edit { it[HORIZONTAL_LAYOUT_KEY] = value }
+        }
+    }
+
     private fun persist(counts: Map<String, Int>, recency: List<String>) {
         scope.launch {
             dataStore.edit { it[RECENTS_DATA_KEY] = json.encodeToString(RecentsData(counts, recency)) }
@@ -136,6 +147,7 @@ class RecentsStore private constructor(private val dataStore: DataStore<Preferen
         private val RECENTS_DATA_KEY = stringPreferencesKey("recents_data")
         private val SORT_MODE_KEY = stringPreferencesKey("recents_sort_mode")
         private val SHOW_TOP_USED_PREVIEW_KEY = booleanPreferencesKey("show_top_used_preview")
+        private val HORIZONTAL_LAYOUT_KEY = booleanPreferencesKey("horizontal_layout")
 
         @Volatile
         private var instance: RecentsStore? = null

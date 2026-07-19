@@ -62,6 +62,7 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
         val recents by viewModel.recents.collectAsState()
         val topUsedPreview by viewModel.topUsedPreview.collectAsState()
         val showTopUsedPreview by viewModel.showTopUsedPreview.collectAsState()
+        val horizontalLayout by viewModel.horizontalLayout.collectAsState()
 
         LightTheme(colors = themeColors) {
             Box(
@@ -75,6 +76,7 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
                         copied = copied,
                         showTopUsedPreview = showTopUsedPreview,
                         topUsedPreview = topUsedPreview,
+                        horizontalLayout = horizontalLayout,
                         onCopy = viewModel::copySelection,
                         onClear = viewModel::clearSelection,
                         onEmojiTap = viewModel::selectEmoji,
@@ -101,6 +103,8 @@ class EmojiToolScreen(sealedActivity: SealedLightActivity) :
                     EmojiMode.Settings -> SettingsModeContent(
                         showTopUsedPreview = showTopUsedPreview,
                         onShowTopUsedPreviewChange = viewModel::setShowTopUsedPreview,
+                        horizontalLayout = horizontalLayout,
+                        onHorizontalLayoutChange = viewModel::setHorizontalLayout,
                         onBack = viewModel::closeToGrid,
                     )
                 }
@@ -115,6 +119,7 @@ private fun GridModeContent(
     copied: Boolean,
     showTopUsedPreview: Boolean,
     topUsedPreview: List<String>,
+    horizontalLayout: Boolean,
     onCopy: () -> Unit,
     onClear: () -> Unit,
     onEmojiTap: (String) -> Unit,
@@ -135,6 +140,7 @@ private fun GridModeContent(
                 onEmojiTap = onEmojiTap,
                 showTopUsedPreview = showTopUsedPreview,
                 topUsedPreview = topUsedPreview,
+                horizontalLayout = horizontalLayout,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
@@ -247,6 +253,8 @@ private fun RecentsGrid(
 private fun SettingsModeContent(
     showTopUsedPreview: Boolean,
     onShowTopUsedPreviewChange: (Boolean) -> Unit,
+    horizontalLayout: Boolean,
+    onHorizontalLayoutChange: (Boolean) -> Unit,
     onBack: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -259,6 +267,11 @@ private fun SettingsModeContent(
             label = "Show Top Used",
             value = showTopUsedPreview,
             onValueChange = onShowTopUsedPreviewChange,
+        )
+        ToggleSwitch(
+            label = "Horizontal Scroll",
+            value = horizontalLayout,
+            onValueChange = onHorizontalLayoutChange,
         )
     }
 }

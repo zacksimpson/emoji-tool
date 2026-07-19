@@ -23,6 +23,7 @@ class EmojiToolViewModel(private val recentsStore: RecentsStore) : LightViewMode
     val recents: StateFlow<List<String>> = recentsStore.recents
     val sortMode: StateFlow<SortMode> = recentsStore.sortMode
     val showTopUsedPreview: StateFlow<Boolean> = recentsStore.showTopUsedPreview
+    val horizontalLayout: StateFlow<Boolean> = recentsStore.horizontalLayout
 
     // A snapshot, not a live view of RecentsStore — refreshed only when arriving at Grid
     // (including cold start), not on every tap while already sitting there. Gives it a
@@ -73,6 +74,10 @@ class EmojiToolViewModel(private val recentsStore: RecentsStore) : LightViewMode
 
     fun setShowTopUsedPreview(value: Boolean) {
         recentsStore.setShowTopUsedPreview(value)
+    }
+
+    fun setHorizontalLayout(value: Boolean) {
+        recentsStore.setHorizontalLayout(value)
     }
 
     fun copySelection() {
