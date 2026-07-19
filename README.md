@@ -2,7 +2,7 @@
 
 A simple emoji picker for the Light Phone III, built natively against the [Light SDK](https://github.com/lightphone/light-sdk).
 
-Browse all emoji organized by category, search by name or keyword, or jump straight to your most-used emoji. Tap to add emoji to your selection, tap COPY to copy them, and CLEAR to start over.
+Browse all emoji organized by category, search by name or keyword. Tap to add emoji to your selection, tap COPY to copy them, and CLEAR to start over.
 
 ---
 
@@ -10,10 +10,9 @@ Browse all emoji organized by category, search by name or keyword, or jump strai
 
 - Full emoji set organized by category, plus a dedicated Search screen that filters live as you type
 - Tap any emoji to add it to your selection tray; COPY copies the selection, CLEAR resets it
-- Recents tab: tracks usage counts and recency, sortable between "Top Used" and "Most Recent"
-- Optional "Top Used" section on the main screen (Settings), showing your most-used emoji at a glance — refreshed only when you arrive at the screen, not live, so it reads differently from the always-fresh Recents tab
-- Strictly black/white, matching LightOS's design language — no gray, no dividers
-
+- Recents tab: tracks usage counts and recency
+- Optional "Top Used" section on the main screen (Settings), showing your most-used emoji at a glance
+- 
 > **Known limitation:** the Light SDK doesn't yet expose a clipboard API, so COPY is currently a
 > stub. It'll be wired up once the SDK supports it.
 
@@ -21,7 +20,7 @@ Browse all emoji organized by category, search by name or keyword, or jump strai
 
 ## Building
 
-This app is built against the [Light SDK](https://github.com/lightphone/light-sdk), included here as a git submodule (local build dependency only — the official Light build server only ever looks at `tool/`, so the submodule never ships).
+This app is built against the [Light SDK](https://github.com/lightphone/light-sdk).
 
 ### Prerequisites
 
@@ -47,8 +46,6 @@ echo "gpr.key=your_token" >> local.properties
 ./gradlew :tool:installDebug   # build + install to a connected device/emulator
 ./gradlew :tool:assembleRelease
 ```
-
-See [CLAUDE.md](CLAUDE.md) for the repo layout and more on how the local build setup works.
 
 ---
 
