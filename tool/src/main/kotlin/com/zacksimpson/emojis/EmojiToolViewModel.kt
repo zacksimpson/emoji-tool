@@ -22,8 +22,20 @@ class EmojiToolViewModel(private val recentsStore: RecentsStore) : LightViewMode
 
     val recents: StateFlow<List<String>> = recentsStore.recents
     val sortMode: StateFlow<SortMode> = recentsStore.sortMode
-    val topUsedPreview: StateFlow<List<String>> = recentsStore.topUsedPreview
     val showTopUsedPreview: StateFlow<Boolean> = recentsStore.showTopUsedPreview
+
+    // A snapshot, not a live view of RecentsStore — refreshed only when arriving at Grid
+    // (including cold start), not on every tap while already sitting there. Gives it a
+    // different, slower-changing character than the always-fresh Recents tab.
+    private val _topUsedPreview = MutableStateFlow<List<String>>(emptyList())
+    val topUsedPreview: StateFlow<List<String>> = _topUsedPreview.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            recentsStore.awaitLoaded()
+            _topUsedPreview.value = recentsStore.topUsedPreview.value
+        }
+    }
 
     fun openSearch() {
         _mode.value = EmojiMode.Search
@@ -38,6 +50,7 @@ class EmojiToolViewModel(private val recentsStore: RecentsStore) : LightViewMode
     }
 
     fun closeToGrid() {
+        _topUsedPreview.value = recentsStore.topUsedPreview.value
         _mode.value = EmojiMode.Grid
     }
 

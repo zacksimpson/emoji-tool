@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -75,6 +76,8 @@ class RecentsStore private constructor(private val dataStore: DataStore<Preferen
         .map { counts -> counts.entries.sortedByDescending { it.value }.take(PREVIEW_DISPLAY).map { it.key } }
         .stateIn(scope, SharingStarted.Eagerly, emptyList())
 
+    private val loaded = CompletableDeferred<Unit>()
+
     init {
         scope.launch {
             val prefs = dataStore.data.first()
@@ -88,8 +91,12 @@ class RecentsStore private constructor(private val dataStore: DataStore<Preferen
                 SortMode.entries.find { mode -> mode.storageValue == raw }?.let { _sortMode.value = it }
             }
             prefs[SHOW_TOP_USED_PREVIEW_KEY]?.let { _showTopUsedPreview.value = it }
+            loaded.complete(Unit)
         }
     }
+
+    /** Suspends until the initial DataStore read has populated counts/recency/settings. */
+    suspend fun awaitLoaded() = loaded.await()
 
     fun track(emoji: String) {
         val newCounts = _counts.value + (emoji to (_counts.value[emoji] ?: 0) + 1)
